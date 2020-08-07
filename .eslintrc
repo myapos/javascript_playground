@@ -1,0 +1,66 @@
+{
+  "extends": ["airbnb", "prettier"],
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "parser": "babel-eslint",
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "moduleDirectory": ["node_modules", "src"]
+      }
+    }
+  },
+  "rules": {
+    "react-hooks/rules-of-hooks": "error",
+    "max-len": [2, 100, 2, { "ignoreUrls": true }],
+    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+    "no-constant-condition": ["error", { "checkLoops": false }],
+    "no-underscore-dangle": ["error", { "allow": ["_default"] }],
+    "react/jsx-one-expression-per-line": 0,
+    "react/prefer-stateless-function": [1, { "ignorePureComponents": true }],
+    "react/forbid-prop-types": [0],
+    "react/destructuring-assignment": [0],
+    "react/require-default-props": [0],
+    "react/require-extension": "off",
+    "react/no-unused-prop-types": "off",
+    "react/button-has-type": 0,
+    "prefer-destructuring": ["error", { "object": true, "array": false }],
+    "import/imports-first": [0],
+    "import/no-unresolved": [1],
+    "import/no-extraneous-dependencies": [1],
+    "react/jsx-filename-extension": [0],
+    "new-cap": [
+      "error",
+      {
+        "capIsNewExceptions": [
+          "API_CALL",
+          "SelectableCheckboxList",
+          "IsFetchingMixin",
+          "CheckboxListMixin",
+          "PaginationMixin",
+          "SearchMixin",
+          "ActionBarMixin",
+          "WebSocketChart",
+          "AutoResizeMixin",
+          "CSSModules",
+          "Dimensions",
+          "DropTarget",
+          "DragSource",
+          "DragDropContext"
+        ]
+      }
+    ]
+  },
+  "plugins": ["react", "react-hooks", "prettier"],
+  "overrides": [
+    {
+      "files": ["*.test.js"],
+      "rules": {
+        "no-undef": [0],
+        "import/no-extraneous-dependencies": [0]
+      }
+    }
+  ]
+}

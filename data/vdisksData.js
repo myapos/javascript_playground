@@ -1,0 +1,136 @@
+const vdisksData = [
+    {
+       "id":15,
+       "type":"reserved",
+       "name":"ControllerVdisk",
+       "volume_name":"-",
+       "status":"active",
+       "actions":[
+ 
+       ],
+       "vm_attached":"-",
+       "is_reserved":true,
+       "datastore":"dc3w04lgrh95it",
+       "size":53975,
+       "percentage":0,
+       "replicas":1
+    },
+    {
+       "id":13,
+       "type":"reserved",
+       "name":"ControllerVdisk",
+       "volume_name":"-",
+       "status":"active",
+       "actions":[
+ 
+       ],
+       "vm_attached":"-",
+       "is_reserved":true,
+       "datastore":"dc3w04lgrh95it",
+       "size":22000,
+       "percentage":0,
+       "replicas":1
+    },
+    {
+       "id":12,
+       "type":"reserved",
+       "name":"ControllerVdisk",
+       "volume_name":"-",
+       "status":"active",
+       "actions":[
+ 
+       ],
+       "vm_attached":"-",
+       "is_reserved":true,
+       "datastore":"dc3w04lgrh95it",
+       "size":53968,
+       "percentage":0,
+       "replicas":1
+    },
+    {
+       "id":11,
+       "type":"root",
+       "name":"-",
+       "volume_name":"67mhGZ4Smt",
+       "status":"active",
+       "actions":[
+          {
+             "Action":"snapcreate",
+             "Label":"Create Snapshot"
+          },
+          {
+             "Action":"renameVdisk",
+             "Label":"Rename VDisk"
+          }
+       ],
+       "vm_attached":"5",
+       "is_reserved":false,
+       "datastore":"d51um2pr9zhk8y",
+       "size":5120,
+       "percentage":0,
+       "replicas":2
+    },
+    {
+       "id":10,
+       "type":"root",
+       "name":"-",
+       "volume_name":"mIPwtBpEal",
+       "status":"active",
+       "actions":[
+          {
+             "Action":"snapcreate",
+             "Label":"Create Snapshot"
+          },
+          {
+             "Action":"renameVdisk",
+             "Label":"Rename VDisk"
+          }
+       ],
+       "vm_attached":"4",
+       "is_reserved":false,
+       "datastore":"d51um2pr9zhk8y",
+       "size":5120,
+       "percentage":0,
+       "replicas":2
+    },
+    {
+       "id":9,
+       "type":"reserved",
+       "name":"ControllerVdisk",
+       "volume_name":"-",
+       "status":"active",
+       "actions":[
+ 
+       ],
+       "vm_attached":"-",
+       "is_reserved":true,
+       "datastore":"d51um2pr9zhk8y",
+       "size":1312,
+       "percentage":0,
+       "replicas":2
+    },
+    {
+       "id":4,
+       "type":"root",
+       "name":"-",
+       "volume_name":"9NezFTfi51",
+       "status":"active",
+       "actions":[
+          {
+             "Action":"snapcreate",
+             "Label":"Create Snapshot"
+          },
+          {
+             "Action":"renameVdisk",
+             "Label":"Rename VDisk"
+          }
+       ],
+       "vm_attached":"1",
+       "is_reserved":false,
+       "datastore":"d51um2pr9zhk8y",
+       "size":10240,
+       "percentage":0,
+       "replicas":2
+    }
+ ]
+export default vdisksData;

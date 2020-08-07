@@ -1,0 +1,31 @@
+{
+  "name": "javascript_playground",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon -r esm start.js ",
+    "lint": "eslint",
+    "dependencies": "npm install",
+    "clean:install": "rm -rf node_modules && npm cache clean --force && npm run dependencies"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "csv-parser": "^2.3.3",
+    "esm": "^3.2.25",
+    "lodash": "^4.17.19",
+    "nodeplotlib": "^0.6.5",
+    "normalizr": "^3.6.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^3.8.0",
+    "@typescript-eslint/parser": "^3.8.0",
+    "eslint": "^7.6.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-prettier": "^3.1.4",
+    "nodemon": "^2.0.4",
+    "prettier-eslint": "^11.0.0"
+  }
+}
