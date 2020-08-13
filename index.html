@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+    <script>
+      // // Define a model for linear regression.
+      // const model = tf.sequential();
+      // model.add(tf.layers.dense({ units: 1, inputShape: [1] }));
+
+      // model.compile({ loss: 'meanSquaredError', optimizer: 'sgd' });
+
+      // // Generate some synthetic data for training.
+      // const xs = tf.tensor2d([1, 2, 3, 4], [4, 1]);
+      // const ys = tf.tensor2d([1, 3, 5, 7], [4, 1]);
+
+      // // Train the model using the data.
+      // model.fit(xs, ys, { epochs: 10 }).then(() => {
+      //   // Use the model to do inference on a data point the model hasn't seen before:
+      //   model.predict(tf.tensor2d([5], [1, 1])).print();
+      //   // Open the browser devtools to see the output
+      // });
+      const xs = tf.tensor1d([1, 2, 3, 4]);
+      const ys = tf.tensor1d([4, 5, 6, 7]);
+      // const ys = xs.mul(tf.scalar(5));
+      // ys.print();
+      xs.print();
+      ys.print();
+      xs.add(ys).print();
+      xs.sub(ys).print();
+      xs.mul(ys).print();
+
+      // y = mx + c
+      function getYs(xs, m, c) {
+        // To implement
+        // debugger;
+        tfm = tf.scalar(m);
+        tfc = tf.scalar(c);
+
+        var multiplied = xs.mul(tfm);
+        return multiplied.add(tfc);
+      }
+      const t1 = tf.tensor1d([1, 5, 10]);
+      const t2 = getYs(t1, 2, 1);
+      t2.print();
+
+      const t3 = tf.tensor1d([25, 76, 4, 23, -5, 22]);
+
+      function normalize(xs) {
+        const max = xs.max(); // 76
+        const min = xs.min(); // -5
+        max.print();
+        min.print();
+
+        numerator = xs.sub(min);
+        denominator = max.sub(min);
+
+        return numerator.div(denominator);
+        // const original = 23;
+        // const minAsNumber = min.dataSync()[0];
+        // const maxAsNumber = max.dataSync()[0];
+        // const normalised = (original - minAsNumber) / (maxAsNumber - minAsNumber);
+      }
+
+      normalize(t3).print();
+
+      function createTensors() {
+        for (let i = 0; i < 100; i++) {
+          tf.tensor1d([1, 2, 3]);
+        }
+        for (let i = 0; i < 100; i++) {
+          tf.tensor1d([4, 5, 6]);
+        }
+      }
+
+      tf.tidy(createTensors);
+      console.log(tf.memory());
+    </script>
+  </head>
+  <body>
+    tensorflow playground
+  </body>
+</html>

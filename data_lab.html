@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab for data preparation</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis"></script>
+    <script>
+      async function run() {
+        await tf.ready();
+        const houseSalesDataset = tf.data.csv('./data/kc_house_data.csv');
+        console.log('houseSalesDataset', houseSalesDataset);
+
+        const tenValues = await houseSalesDataset.take(10).toArray();
+        // console.log('10 values', tenValues);
+        // const allValues = await houseSalesDataset.toArray();
+        // console.log('all values', allValues);
+
+        // const dropped = allValues.map((row) => ({
+        //   id: row.id,
+        //   bathrooms: row.bathrooms,
+        // }));
+        // console.log('dropped columns', dropped);
+
+        // const b = allValues.map((x) => ({
+        //   id: x.id,
+        // }));
+
+        // console.log(b);
+        // await a.forEachAsync((e) => console.log(e));
+
+        function createPointsDataset(property) {
+          const pointsDataset = houseSalesDataset.map((record) => ({
+            x: record[property],
+            y: record.price,
+          }));
+
+          return pointsDataset;
+        }
+
+        let pointsDataset = createPointsDataset('sqft_living');
+        const pointsSqtFeet = await pointsDataset.toArray();
+
+        function plot(points, featureName) {
+          tfvis.render.scatterplot(
+            { name: `${featureName} vs House Price` },
+            { values: [points], series: ['original'] },
+            {
+              xLabel: featureName,
+              yLabel: 'Price',
+            },
+          );
+        }
+
+        const capitalize = (s) => {
+          if (typeof s !== 'string') return '';
+          return s.charAt(0).toUpperCase() + s.slice(1);
+        };
+
+        function normalise(tensor) {
+          const max = tensor.max();
+          const min = tensor.min();
+          const normalisedTensor = tensor.sub(min).div(max.sub(min));
+          return { tensor: normalisedTensor, min, max };
+        }
+
+        function denormalise(tensor, min, max) {
+          return tensor.mul(max.sub(min)).add(min);
+        }
+
+        function splitTreshold(size, percentage) {
+          return Math.ceil(size * percentage);
+        }
+
+        const rawColumnNames = await houseSalesDataset.columnNames();
+
+        console.log('rawColumnNames', rawColumnNames);
+
+        // calculate all plots
+
+        // step 1 prepare all columnNames for comparing -- drop id and price column
+
+        const [id, date, price, ...labels] = rawColumnNames;
+
+        console.log('labels', labels);
+        async function plotLabels(labels) {
+          // step 2 print every label prepare all columnNames for comparing -- drop id and price column
+          labels.forEach(async (label) => {
+            if (label.match(/sqft_living/gi)) {
+              pointsDataset = createPointsDataset(label);
+              const points = await pointsDataset.toArray();
+
+              // force even number of points
+              if (points.length % 2 !== 0) {
+                points.pop();
+              }
+              tf.util.shuffle(points);
+              plot(points, capitalize(label));
+              tf.tidy(() => {
+                const featureValues = points.map((p) => p.x);
+                const featureTensor = tf.tensor2d(featureValues, [featureValues.length, 1]);
+
+                const labelValues = points.map((p) => p.y);
+                const labelTensor = tf.tensor2d(labelValues, [labelValues.length, 1]);
+
+                const normalisedFeature = normalise(featureTensor);
+                const normalisedLabel = normalise(labelTensor);
+                normalisedFeature.tensor.print();
+
+                const { size: sizeFeatures } = normalisedFeature.tensor;
+
+                console.log('sizeFeatures', sizeFeatures);
+                let threshold = splitTreshold(sizeFeatures, 0.8);
+
+                const [trainingFeatures, testingFeatures] = tf.split(normalisedFeature.tensor, [
+                  threshold,
+                  sizeFeatures - threshold,
+                ]);
+
+                console.log(
+                  'trainingFeatures',
+                  trainingFeatures,
+                  'testingFeatures',
+                  testingFeatures,
+                );
+
+                const { size: sizeLabel } = normalisedLabel.tensor;
+
+                console.log('sizeLabel', sizeLabel);
+                threshold = splitTreshold(sizeLabel, 0.8);
+
+                const [trainingLabels, testingLabels] = tf.split(normalisedLabel.tensor, [
+                  threshold,
+                  sizeLabel - threshold,
+                ]);
+
+                console.log('trainingLabels', trainingLabels, ' testingLabels', testingLabels);
+              });
+
+              console.log('memory used:', tf.memory());
+            }
+          });
+        }
+        plotLabels(labels);
+      }
+      run();
+    </script>
+  </head>
+  <body>
+    tensorflow playground
+  </body>
+</html>
