@@ -7,6 +7,29 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis"></script>
     <script>
+      async function predict() {
+        alert('Not yet implemented');
+      }
+      async function toggleVisor() {
+        tfvis.visor().toggle();
+      }
+
+      function addButtonListeners() {
+        const btn = document.getElementById('toggle-button');
+        // debugger;
+        // btn.addEventListener('click', async function () {
+        //   await predict();
+        // });
+      }
+
+      let normalisedFeature, normalisedLabel;
+      let trainingFeatureTensor, testingFeatureTensor, trainingLabelTensor, testingLabelTensor;
+
+      window.addEventListener('DOMContentLoaded', (event) => {
+        console.log('DOM fully loaded and parsed');
+        addButtonListeners();
+      });
+
       async function run() {
         await tf.ready();
         const houseSalesDataset = tf.data.csv('./data/kc_house_data.csv');
@@ -84,29 +107,88 @@
         const [id, date, price, ...labels] = rawColumnNames;
 
         console.log('labels', labels);
-        async function plotLabels(labels) {
-          // step 2 print every label prepare all columnNames for comparing -- drop id and price column
-          labels.forEach(async (label) => {
-            if (label.match(/sqft_living/gi)) {
-              pointsDataset = createPointsDataset(label);
-              const points = await pointsDataset.toArray();
 
-              // force even number of points
-              if (points.length % 2 !== 0) {
-                points.pop();
-              }
-              tf.util.shuffle(points);
-              plot(points, capitalize(label));
-              tf.tidy(() => {
+        let model = null;
+
+        function createModel() {
+          model = tf.sequential();
+          // More code to go here
+
+          model.add(
+            tf.layers.dense({
+              inputDim: 1,
+              units: 1,
+              activation: 'linear',
+              useBias: true,
+            }),
+          );
+
+          const optimizer = tf.train.sgd(0.1);
+          model.compile({
+            optimizer,
+            loss: 'meanSquaredError',
+          });
+          return model;
+        }
+
+        function testModel(model, testingFeatureTensor, testingLabelTensor) {
+          const lossTensor = model.evaluate(testingFeatureTensor, testingLabelTensor);
+          console.log(lossTensor);
+          const loss = lossTensor.dataSync();
+          console.log(`Testing Loss: ${loss}`);
+        }
+
+        function trainModel(model, trainingFeatureTensor, trainingLabelTensor) {
+          const { onBatchEnd, onEpochEnd } = tfvis.show.fitCallbacks(
+            { name: 'Training Performance' },
+            ['loss'],
+          );
+
+          model.fit(trainingFeatureTensor, trainingLabelTensor, {
+            epochs: 20,
+            batchSize: 512,
+            shuffle: true,
+            callbacks: {
+              // onEpochEnd: (epoch, logs) => console.log('Epoch', epoch, ' Logs', logs),
+              // onBatchEnd,
+              onEpochEnd,
+              validationSplit: 0.2,
+              onEpochBegin: function () {
+                tfvis.show.layer({ name: `Layer 1` }, model.getLayer(undefined, 0));
+              },
+            },
+          });
+        }
+
+        async function plotLabels(labels) {
+          tf.tidy(() => {
+            // step 2 print every label prepare all columnNames for comparing -- drop id and price column
+            labels.forEach(async (label) => {
+              // tf.tidy(() => {
+              // if (label.match(/sqft_living/gi)) {
+              if (label === 'sqft_living') {
+                pointsDataset = createPointsDataset(label);
+                const points = await pointsDataset.toArray();
+
+                // force even number of points
+                if (points.length % 2 !== 0) {
+                  points.pop();
+                }
+                tf.util.shuffle(points);
+                plot(points, capitalize(label));
+
                 const featureValues = points.map((p) => p.x);
                 const featureTensor = tf.tensor2d(featureValues, [featureValues.length, 1]);
 
                 const labelValues = points.map((p) => p.y);
                 const labelTensor = tf.tensor2d(labelValues, [labelValues.length, 1]);
 
-                const normalisedFeature = normalise(featureTensor);
-                const normalisedLabel = normalise(labelTensor);
+                normalisedFeature = normalise(featureTensor);
+                normalisedLabel = normalise(labelTensor);
                 normalisedFeature.tensor.print();
+
+                featureTensor.dispose();
+                labelTensor.dispose();
 
                 const { size: sizeFeatures } = normalisedFeature.tensor;
 
@@ -136,18 +218,180 @@
                 ]);
 
                 console.log('trainingLabels', trainingLabels, ' testingLabels', testingLabels);
-              });
 
-              console.log('memory used:', tf.memory());
-            }
+                const model = createModel();
+                trainModel(model, trainingFeatures, trainingLabels);
+                model.summary();
+
+                tfvis.show.modelSummary({ name: `Model Summary`, tab: `Model` }, model);
+
+                tfvis.show.layer(
+                  { name: `Layer 1`, tab: `Model Inspection` },
+                  model.getLayer(undefined, 0),
+                );
+
+                testModel(model, testingFeatures, testingLabels);
+
+                console.log('memory used:', tf.memory());
+                // });
+              }
+            });
           });
         }
         plotLabels(labels);
+
+        // Update status and enable train button
+        document.getElementById('model-status').innerHTML = 'No model trained';
+        document.getElementById('train-button').removeAttribute('disabled');
       }
-      run();
+      // run();
+
+      async function train() {
+        // Disable all buttons and update status
+        ['train', 'test', 'load', 'predict', 'save'].forEach((id) => {
+          document.getElementById(`${id}-button`).setAttribute('disabled', 'disabled');
+        });
+        document.getElementById('model-status').innerHTML = 'Training...';
+
+        document.getElementById(
+          'model-status',
+        ).innerHTML = `Trained (unsaved)\nLoss: ${trainingLoss.toPrecision(
+          5,
+        )}\nValidation loss: ${validationLoss.toPrecision(5)}`;
+      }
     </script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   </head>
   <body>
-    tensorflow playground
+    <!--   Header   -->
+    <div class="section no-pad-bot" id="index-banner">
+      <div class="container">
+        <h5 class="header center blue-text small">Linear regression with TensorFlow.js</h5>
+        <div class="row center">
+          <h6 class="header col s12 light">
+            Train a model to predict house price from living space.
+          </h6>
+        </div>
+      </div>
+    </div>
+
+    <!--   Misc buttons   -->
+    <div class="section no-pad-bot light-blue lighten-4">
+      <div class="container">
+        <div class="row center">
+          <button
+            id="toggle-button"
+            class="waves-effect waves-light light-blue btn-small"
+            onclick="toggleVisor()"
+          >
+            Toggle Visor
+          </button>
+          <br /><br />
+        </div>
+      </div>
+    </div>
+
+    <!--   Main functionality   -->
+    <div class="container">
+      <div class="section">
+        <div class="row">
+          <!--   Training   -->
+          <div class="col s12 m6">
+            <div class="icon-block">
+              <h3 class="center light-blue-text">
+                <i class="material-icons" style="font-size: 2em;">build</i>
+              </h3>
+              <h5 class="center">Train & Test</h5>
+
+              <p class="light"></p>
+
+              <div>
+                <p><label>Training status:</label></p>
+                <pre
+                  class="grey lighten-4"
+                  style="overflow-x: auto;"
+                ><em id="model-status">Loading data...</em></pre>
+
+                <p><label>Testing status:</label></p>
+                <pre
+                  class="grey lighten-4"
+                  style="overflow-x: auto;"
+                ><em id="testing-status">Not yet tested</em></pre>
+
+                <button
+                  autocomplete="off"
+                  id="train-button"
+                  class="waves-effect light-blue waves-light btn"
+                  disabled
+                  onclick="train()"
+                >
+                  Train New Model
+                </button>
+                <button
+                  autocomplete="off"
+                  id="test-button"
+                  class="waves-effect light-blue waves-light btn"
+                  disabled
+                  onclick="test()"
+                >
+                  Test Model
+                </button>
+              </div>
+              <br />
+
+              <div>
+                <button
+                  autocomplete="off"
+                  id="load-button"
+                  class="waves-effect light-blue waves-light btn-small"
+                  disabled
+                  onclick="load()"
+                >
+                  Load Model
+                </button>
+                <button
+                  autocomplete="off"
+                  id="save-button"
+                  class="waves-effect light-blue waves-light btn-small"
+                  disabled
+                  onclick="save()"
+                >
+                  Save Model
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!--   Prediction   -->
+          <div class="col s12 m6">
+            <div class="icon-block">
+              <h3 class="center light-blue-text">
+                <i class="material-icons" style="font-size: 2em;">timeline</i>
+              </h3>
+              <h5 class="center">Predict</h5>
+
+              <label
+                >Square feet of living space:
+                <input type="number" id="prediction-input" placeholder="2000"
+              /></label>
+              <button
+                autocomplete="off"
+                id="predict-button"
+                class="waves-effect light-blue waves-light btn"
+                disabled
+                onclick="predict()"
+              >
+                Predict house price
+              </button>
+              <p><strong id="prediction-output"></strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
