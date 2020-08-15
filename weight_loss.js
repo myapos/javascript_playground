@@ -5,6 +5,7 @@ import fs from 'fs';
 import { plot } from 'nodeplotlib';
 
 import addMean from './utils/addMean';
+import dateDiffInDays from './utils/dateDiffInDays';
 
 const FILENAME = './data/weight_loss.csv';
 
@@ -21,7 +22,8 @@ fs.createReadStream(FILENAME)
   .on('end', () => {
     console.log('CSV file successfully processed');
 
-    // console.log('values', values);
+    console.log('values', values, ' length', values.length);
+
     // console.log('dates', dates);
 
     const midsY = [];
@@ -35,7 +37,9 @@ fs.createReadStream(FILENAME)
 
     let remainingValues = [];
     values.forEach((value, index) => {
-      if (p2 - p1 > dif - 1) {
+      const difference = dateDiffInDays(dates[p1], dates[p2]);
+      // p2 - p1 > dif - 1 ||
+      if (difference > dif - 1) {
         slice = values.slice(p1, p2);
         // console.log('slice',slice, ' midsY', midsY)
         addMean({ slice, midsY, range: dates[p1] + ' to ' + dates[p2 - 1], midsX });
@@ -43,10 +47,12 @@ fs.createReadStream(FILENAME)
         p1 = p2;
       }
 
-      const lastDatePeriod = Math.floor(values.length / dif) * dif;
+      const lastDatePeriod = Math.floor(values.length / dif) * dif - 1;
+      console.log('------lastDatePeriod----------', lastDatePeriod, 'index ', index);
       // get last remaining values
       if (index >= lastDatePeriod) {
         remainingValues.push(value);
+        console.log('----------remainingValues--------------', remainingValues);
       }
 
       if (index === values.length - 1) {
