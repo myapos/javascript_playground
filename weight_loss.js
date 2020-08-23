@@ -1,7 +1,8 @@
 /* It reads weight loss data from csv file located in data folder and generates two graphs. The first one
 is a simple representation of the raw csv data. The second displays the average deviation per week. 
 Usage: 
-verbose mode prints logs in the output about the calcluated periods, difference days and segments */
+verbose mode prints logs in the output about the calcluated periods, difference days and segments
+Example: npm start verbose */
 import csv from 'csv-parser';
 import fs from 'fs';
 import { plot } from 'nodeplotlib';
