@@ -1,3 +1,4 @@
+import verboseLog from './verboseLog';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 const preprocessDate = (dateString, delimiter) => {
@@ -23,7 +24,7 @@ function dateDiffInDays(a, b) {
   const utc2 = Date.UTC(bDate.getFullYear(), bDate.getMonth(), bDate.getDate());
   const difference = Math.floor((utc2 - utc1) / _MS_PER_DAY);
 
-  console.log(`${a} to ${b} difference is ${difference}`);
+  verboseLog(`${a} to ${b} difference is ${difference}`);
   return difference;
 }
 

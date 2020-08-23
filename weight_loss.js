@@ -1,16 +1,20 @@
 /* It reads weight loss data from csv file located in data folder and generates two graphs. The first one
-is a simple representation of the raw csv data. The second displays the average deviation per week */
+is a simple representation of the raw csv data. The second displays the average deviation per week. 
+Usage: 
+verbose mode prints logs in the output about the calcluated periods, difference days and segments */
 import csv from 'csv-parser';
 import fs from 'fs';
 import { plot } from 'nodeplotlib';
 
 import addMean from './utils/addMean';
 import dateDiffInDays from './utils/dateDiffInDays';
+import verboseLog from './utils/verboseLog';
 
 const FILENAME = './data/weight_loss.csv';
 
 const values = [];
 const dates = [];
+
 fs.createReadStream(FILENAME)
   .pipe(csv())
   .on('data', (row) => {
@@ -20,9 +24,11 @@ fs.createReadStream(FILENAME)
     dates.push(row['Date']);
   })
   .on('end', () => {
-    console.log('CSV file successfully processed');
+    verboseLog('CSV file successfully processed');
 
-    console.log('values', values, ' length', values.length);
+    verboseLog(`values ${values} length ${values.length}`);
+
+    // detect any missing dates and fill them
 
     // console.log('dates', dates);
 
@@ -48,11 +54,14 @@ fs.createReadStream(FILENAME)
       }
 
       const lastDatePeriod = Math.floor(values.length / dif) * dif - 1;
-      console.log('------lastDatePeriod----------', lastDatePeriod, 'index ', index);
+      verboseLog(`------lastDatePeriod---------- ${lastDatePeriod} index: ${index}`);
+
+      verboseLog(`index is: ${index} value is: ${value}`);
       // get last remaining values
-      if (index >= lastDatePeriod) {
+      if (index >= lastDatePeriod - 2) {
+        verboseLog(`populating remaining values ${index}`);
         remainingValues.push(value);
-        console.log('----------remainingValues--------------', remainingValues);
+        verboseLog(`----------remainingValues-------------- ${remainingValues}`);
       }
 
       if (index === values.length - 1) {
@@ -61,7 +70,7 @@ fs.createReadStream(FILENAME)
         addMean({
           slice: remainingValues,
           midsY,
-          range: dates[lastDatePeriod] + ' to Today',
+          range: dates[lastDatePeriod - 2] + ' to Today',
           midsX,
         });
       }
@@ -70,11 +79,11 @@ fs.createReadStream(FILENAME)
       p2++;
     });
 
-    console.log('-------------- slices', slices);
-    console.log('-------------- midsY', midsY);
-    console.log('-------------- midsX', midsX);
+    verboseLog(`remainingValuse completed: ${remainingValues}`);
+    verboseLog(`-------------- slices: ${slices}`);
+    verboseLog(`-------------- midsY: ${midsY}`);
+    verboseLog(`-------------- midsX: ${midsX}`);
 
-    // const data = [{ x: [1, 3, 4, 5], y: [3, 12, 1, 4], type: 'line' }];
     const data = [{ x: midsX, y: midsY, type: 'line' }];
     plot(data);
 
