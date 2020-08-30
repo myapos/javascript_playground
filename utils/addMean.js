@@ -1,8 +1,12 @@
 import sum from './sum';
 
 const addMean = ({ slice, midsY, range, midsX }) => {
-  const sumSlice = sum(...slice);
-  const mean = sumSlice / slice.length;
+  // export values from slice objects
+
+  const sliceValues = slice.map((item) => parseInt(item.Kgrs));
+
+  const sumSlice = sum(...sliceValues);
+  const mean = sumSlice / sliceValues.length;
   // console.log('sumSlice', sumSlice, 'mean', mean, ' length', slice.length);
   // midsY.push({ mean, range });
   midsY.push(mean);

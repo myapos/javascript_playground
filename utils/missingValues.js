@@ -233,7 +233,7 @@ const missingValues = (rawData, dates, mode) => {
 
     const extraInfoArray = convertMapToArray(filledMap);
 
-    console.log('extraInfoArray', extraInfoArray);
+    // console.log('extraInfoArray', extraInfoArray);
 
     // group by month
     grouped = groupByProperty(extraInfoArray, 'month');
@@ -279,7 +279,7 @@ const missingValues = (rawData, dates, mode) => {
       }
     });
 
-    console.log('-----grouped--------', JSON.stringify(grouped));
+    // console.log('-----grouped--------', JSON.stringify(grouped));
     // flaten grouped to converted
 
     Object.keys(grouped).forEach((month) => {
@@ -287,7 +287,7 @@ const missingValues = (rawData, dates, mode) => {
     });
   }
 
-  console.log('grouped', grouped);
+  // console.log('grouped', grouped);
   return converted;
 };
 
