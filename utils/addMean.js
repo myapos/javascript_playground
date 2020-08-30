@@ -3,7 +3,7 @@ import sum from './sum';
 const addMean = ({ slice, midsY, range, midsX }) => {
   // export values from slice objects
 
-  const sliceValues = slice; //slice.map((item) => parseInt(item.Kgrs));
+  const sliceValues = slice.map((item) => parseInt(item.Kgrs));
 
   const sumSlice = sum(...sliceValues);
   const mean = sumSlice / sliceValues.length;
