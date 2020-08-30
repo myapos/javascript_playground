@@ -11,21 +11,22 @@ import addMean from './utils/addMean';
 import dateDiffInDays from './utils/dateDiffInDays';
 import verboseLog from './utils/verboseLog';
 import missingValues from './utils/missingValues';
+import reverseArray from './utils/reverseArray';
 
 // const FILENAME = './data/weight_loss.csv';
 const FILENAME = './data/weight_loss_minimal.csv';
 
-const values = [];
+const rawValues = [];
 const dates = [];
 const rawData = [];
 
 fs.createReadStream(FILENAME)
   .pipe(csv())
   .on('data', (row) => {
-    console.log('reveived data', row);
+    // console.log('received data', row);
 
     rawData.push(row);
-    values.push(parseFloat(row['Kgrs'].replace(',', '.')));
+    rawValues.push(parseFloat(row['Kgrs'].replace(',', '.')));
 
     dates.push(row['Date']);
   })
@@ -34,8 +35,18 @@ fs.createReadStream(FILENAME)
 
     // verboseLog(`values ${values} length ${values.length}`);
     // detect any missing dates and fill them
-    missingValues(rawData, dates);
-    // console.log('dates', dates);
+
+    // first in forward mode
+    const forwardValues = missingValues(rawData, dates, 'forward');
+
+    // console.log('forward values', JSON.stringify(forwardValues));
+    // const values = missingValues(rawData, dates, 'forward');
+    // const values = reverseArray(forwardValues);
+
+    // secondly in reverse mode
+    // const reversedValues = reverseArray(rawData);
+    const values = missingValues(forwardValues, dates, 'reverse');
+    // console.log('values', JSON.stringify(values));
 
     const midsY = [];
     const midsX = [];
@@ -48,53 +59,56 @@ fs.createReadStream(FILENAME)
 
     let remainingValues = [];
     values.forEach((value, index) => {
-      // const difference = dateDiffInDays(dates[p1], dates[p2]);
-      // if (difference > dif - 1) {
-      //   slice = values.slice(p1, p2);
-      //   // console.log('slice',slice, ' midsY', midsY)
-      //   addMean({ slice, midsY, range: dates[p1] + ' to ' + dates[p2 - 1], midsX });
-      //   slices.push(slice);
-      //   p1 = p2;
-      // }
+      if (dates[p1] && dates[p2]) {
+        const difference = dateDiffInDays(dates[p1], dates[p2]);
+        if (difference > dif - 1) {
+          slice = values.slice(p1, p2);
+          // console.log('slice',slice, ' midsY', midsY)
+          addMean({ slice, midsY, range: dates[p1] + ' to ' + dates[p2 - 1], midsX });
+          slices.push(slice);
+          p1 = p2;
+        }
 
-      // this approach does not work because there are missing values. In order for this
-      // to work I have to fill the missing values with the previous one
-      // const lastDatePeriod = Math.floor(values.length / dif) * dif;
-      // const lastDatePeriod = Math.floor(values.length / dif) * dif;
+        // this approach does not work because there are missing values. In order for this
+        // to work I have to fill the missing values with the previous one
+        // const lastDatePeriod = Math.floor(values.length / dif) * dif;
+        // const lastDatePeriod = Math.floor(values.length / dif) * dif;
 
-      // get last remaining values
-      // if (index >= lastDatePeriod) {
-      //   verboseLog(
-      //     `------lastDatePeriod---------- ${lastDatePeriod} lastValue: ${values[lastDatePeriod]} populating remaining values ${index}`,
-      //   );
-      //   remainingValues.push(value);
-      //   verboseLog(`----------remainingValues-------------- ${remainingValues}`);
-      // }
+        // get last remaining values
+        // if (index >= lastDatePeriod) {
+        //   verboseLog(
+        //     `------lastDatePeriod---------- ${lastDatePeriod} lastValue: ${values[lastDatePeriod]} populating remaining values ${index}`,
+        //   );
+        //   remainingValues.push(value);
+        //   verboseLog(`----------remainingValues-------------- ${remainingValues}`);
+        // }
 
-      // if (index === values.length - 1 && remainingValues.length > 0) {
-      //   // push remainingValues in the last iteration
-      //   slices.push(remainingValues);
-      //   addMean({
-      //     slice: remainingValues,
-      //     midsY,
-      //     range: dates[p2 - 1] + ' to Today',
-      //     midsX,
-      //   });
-      // }
+        // if (index === values.length - 1 && remainingValues.length > 0) {
+        //   // push remainingValues in the last iteration
+        //   slices.push(remainingValues);
+        //   addMean({
+        //     slice: remainingValues,
+        //     midsY,
+        //     range: dates[p2 - 1] + ' to Today',
+        //     midsX,
+        //   });
+        // }
 
-      // increase counter
-      p2++;
+        // increase counter
+        p2++;
+      }
     });
 
     // verboseLog(`remainingValues completed: ${remainingValues}`);
-    // verboseLog(`-------------- slices: ${slices}`);
-    // verboseLog(`-------------- midsY: ${midsY}`);
-    // verboseLog(`-------------- midsX: ${midsX}`);
+    verboseLog(`-------------- slices: ${JSON.stringify(slices)}`);
+    verboseLog(`-------------- midsY: ${midsY}`);
+    verboseLog(`-------------- midsX: ${midsX}`);
 
-    // const data = [{ x: midsX, y: midsY, type: 'line' }];
-    // plot(data);
+    const data = [{ x: midsX, y: midsY, type: 'line' }];
+    plot(data);
 
+    debugger;
     // plot initial data
-    // const data_ = [{ x: dates, y: values, type: 'line' }];
-    // plot(data_);
+    const data_ = [{ x: dates, y: values.map((item) => item.Kgrs), type: 'line' }];
+    plot(data_);
   });
