@@ -5,7 +5,7 @@ const preprocessDate = (dateString, delimiter) => {
   // preprocess dates from form DD-MM-YYYY
 
   //   var dateString = '23/10/2015'; // Oct 23
-
+  // console.log('dateString', dateString);
   var dateParts = dateString.split(delimiter);
 
   // month is 0-based, that's why we need dataParts[1] - 1
