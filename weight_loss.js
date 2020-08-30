@@ -57,7 +57,7 @@ fs.createReadStream(FILENAME)
       const lastDatePeriod = Math.floor(values.length / dif) * dif - 1;
       verboseLog(`------lastDatePeriod---------- ${lastDatePeriod} index: ${index}`);
 
-      verboseLog(`index is: ${index} value is: ${value}`);
+      verboseLog(`index is : ${index} value is: ${value}`);
       // get last remaining values
       if (index >= lastDatePeriod - 2) {
         verboseLog(`populating remaining values ${index}`);
