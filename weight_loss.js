@@ -13,8 +13,8 @@ import verboseLog from './utils/verboseLog';
 import missingValues from './utils/missingValues';
 import reverseArray from './utils/reverseArray';
 
-const FILENAME = './data/weight_loss.csv';
-// const FILENAME = './data/weight_loss_minimal.csv';
+// const FILENAME = './data/weight_loss.csv';
+const FILENAME = './data/weight_loss_minimal.csv';
 
 const rawValues = [];
 const dates = [];
