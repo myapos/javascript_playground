@@ -11,21 +11,22 @@ import addMean from './utils/addMean';
 import dateDiffInDays from './utils/dateDiffInDays';
 import verboseLog from './utils/verboseLog';
 import missingValues from './utils/missingValues';
+import reverseArray from './utils/reverseArray';
 
-// const FILENAME = './data/weight_loss.csv';
-const FILENAME = './data/weight_loss_minimal.csv';
+const FILENAME = './data/weight_loss.csv';
+// const FILENAME = './data/weight_loss_minimal.csv';
 
-const values = [];
+const rawValues = [];
 const dates = [];
 const rawData = [];
 
 fs.createReadStream(FILENAME)
   .pipe(csv())
   .on('data', (row) => {
-    console.log('reveived data', row);
+    // console.log('received data', row);
 
     rawData.push(row);
-    values.push(parseFloat(row['Kgrs'].replace(',', '.')));
+    rawValues.push(parseFloat(row['Kgrs'].replace(',', '.')));
 
     dates.push(row['Date']);
   })
@@ -34,8 +35,18 @@ fs.createReadStream(FILENAME)
 
     // verboseLog(`values ${values} length ${values.length}`);
     // detect any missing dates and fill them
-    missingValues(rawData, dates);
-    // console.log('dates', dates);
+
+    // first in forward mode
+    const forwardValues = missingValues(rawData, dates, 'forward');
+
+    // console.log('forward values', JSON.stringify(forwardValues));
+    // const values = missingValues(rawData, dates, 'forward');
+    // const values = reverseArray(forwardValues);
+
+    // secondly in reverse mode
+    // const reversedValues = reverseArray(rawData);
+    const values = missingValues(forwardValues, dates, 'reverse');
+    console.log('values', JSON.stringify(values));
 
     const midsY = [];
     const midsX = [];

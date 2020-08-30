@@ -1,9 +1,19 @@
 import verboseLog from './verboseLog';
+import groupByProperty from './groupByProperty';
+import { first } from 'lodash';
+
 /**Detect a leap year */
 function leapYear(year) {
   return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
 }
-
+/* It adds a zero if value is smaller than ten. This will help to keep unique values in Map */
+const prettyValue = (value) => {
+  let pretty = parseInt(value);
+  if (pretty < 10) {
+    pretty = `0${pretty}`;
+  }
+  return pretty;
+};
 const monthInfo = {
   '01': {
     month: 'January',
@@ -76,7 +86,7 @@ const nextDateExists = (raw, dayOfMonth, monthIs, dates, year) => {
     nextDay = monthIs.numOfDays;
   }
 
-  const nextDate = `${nextDay}-${monthIs.order}-${year}`;
+  const nextDate = `${prettyValue(nextDay)}-${monthIs.order}-${year}`;
 
   return {
     exists: dates.includes(nextDate),
@@ -84,13 +94,23 @@ const nextDateExists = (raw, dayOfMonth, monthIs, dates, year) => {
   };
 };
 
+const splitDate = (date) => date.split('-');
+
 const convertArrayToMap = (ar) => {
   let myMap = new Map();
 
   ar.forEach((raw) => {
+    const splitted = splitDate(raw.Date);
+
+    // detect key
+    const prettyKey = prettyValue(splitted[1]);
+    // console.log('prettyKey', prettyKey);
+
     myMap.set(raw.Date, {
       ...raw,
-      filled: false,
+      filled: typeof raw.filled !== 'undefined' ? raw.filled : false,
+      month: monthInfo[prettyKey].month,
+      order: monthInfo[prettyKey].order,
     });
   });
 
@@ -100,92 +120,175 @@ const convertArrayToMap = (ar) => {
 const convertMapToArray = (myMap) => {
   const ar = [];
   for (let [key, value] of myMap) {
-    console.log(key + ' = ' + JSON.stringify(value));
+    // console.log(key + ' = ' + JSON.stringify(value));
     ar.push({
       Date: key,
       Kgrs: value.Kgrs,
+      month: value.month,
+      order: value.order,
       filled: value.filled,
     });
   }
-  console.log('converted array:', ar);
+  // console.log('converted array:', JSON.stringify(ar, null, 2));
+  // console.log('converted array:', ar);
 
   return ar;
 };
 
-const detectMissingValues = (rawData, dates) => {
+/** It detects missing values in two modes (forward and reverse). In forward mode it scans the dates inside a
+ * year and it fills in the missing dates with the value of previous day. In reverse mode it scans the  data in
+ * reverse and fills the missing date with the next date. The result should be a range with full dates containing
+ * values from prexisted data
+ */
+const missingValues = (rawData, dates, mode) => {
+  let converted = [];
+  let grouped;
   verboseLog('---------detectMissingValues--------------');
+  console.log('---------detectMissingValues--------------', mode);
   // const filled = [...rawData];
+  // console.log('rawData', rawData);
   const filledMap = convertArrayToMap(rawData);
 
   // get the first month in the values
   let tempMonth = rawData[0].Date.split('-')[1];
   let tempMonthIs = monthInfo[tempMonth];
   console.log('tempMonth detection', tempMonth, tempMonthIs);
-  let nextDayIsnSameMonth = true;
-  // loop
-  rawData.forEach((raw, index) => {
-    // console.log('raw', raw, ' index', index);
 
-    // detect dayOfMonth
-    const dayOfMonth = parseInt(raw.Date.split('-')[0]);
+  if (mode === 'forward') {
+    // loop
+    rawData.forEach((raw, index) => {
+      // console.log('raw', raw, ' index', index);
 
-    // detect month
-    const month = raw.Date.split('-')[1];
-    const monthIs = monthInfo[month];
-    // console.log('month detection', month, monthIs);
+      // detect dayOfMonth
+      const dayOfMonth = parseInt(raw.Date.split('-')[0]);
 
-    // detect year
-    const year = raw.Date.split('-')[2];
+      // check for the first day in each month
+      // detect month
 
-    // build nextDate and search if it exists in initial dates
-    let { exists, nextDate } = nextDateExists(raw.Date, dayOfMonth, monthIs, dates, year);
+      const month = raw.Date.split('-')[1];
+      const monthIs = monthInfo[month];
 
-    let monthOfNextDate = nextDate.split('-')[1];
-    let nextDayIsInSameMonth = monthOfNextDate === monthIs.order;
-    let counter = 0;
+      // detect year
+      const year = raw.Date.split('-')[2];
 
-    // if the next date does not exist in the array then add it
-    while (!exists && nextDayIsInSameMonth && counter <= monthIs.numOfDays) {
-      // push missing date with the previous value
+      // build nextDate and search if it exists in initial dates
+      let { exists, nextDate } = nextDateExists(raw.Date, dayOfMonth, monthIs, dates, year);
 
-      filledMap.set(nextDate, {
-        Date: nextDate,
-        Kgrs: raw.Kgrs,
-        filled: true,
-      });
-      monthOfNextDate = nextDate.split('-')[1];
-      const nextDayOfMonth = parseInt(nextDate.split('-')[0]);
-      nextDayIsInSameMonth = monthOfNextDate === monthIs.order;
-      ({ exists, nextDate } = nextDateExists(nextDate, nextDayOfMonth, monthIs, dates, year));
+      let monthOfNextDate = nextDate.split('-')[1];
+      let nextDayIsInSameMonth = monthOfNextDate === monthIs.order;
+      let counter = 0;
 
-      counter++;
-    }
+      // if the next date does not exist in the array then add it
+      while (!exists && nextDayIsInSameMonth && counter <= monthIs.numOfDays) {
+        // push missing date with the previous value
 
-    console.log(
-      `initial date: ${raw.Date} does next date ${nextDate} exists: ${exists} missing days: ${counter}`,
+        const splittedKey = nextDate.split('-');
+
+        const prettyDate = `${prettyValue(splittedKey[0])}-${prettyValue(
+          splittedKey[1],
+        )}-${prettyValue(splittedKey[2])}`;
+
+        filledMap.set(prettyDate, {
+          Date: prettyDate,
+          Kgrs: raw.Kgrs,
+          filled: true,
+          month: monthInfo[prettyValue(splittedKey[1])].month,
+          order: monthInfo[prettyValue(splittedKey[1])].order,
+        });
+        monthOfNextDate = nextDate.split('-')[1];
+        const nextDayOfMonth = prettyValue(parseInt(nextDate.split('-')[0]));
+        nextDayIsInSameMonth = monthOfNextDate === monthIs.order;
+        ({ exists, nextDate } = nextDateExists(nextDate, nextDayOfMonth, monthIs, dates, year));
+
+        counter++;
+      }
+
+      // console.log(
+      //   `initial date: ${raw.Date} does next date ${nextDate} exists: ${exists} missing days: ${counter}`,
+      // );
+      tempMonthIs = { ...monthIs };
+    });
+
+    // sort by date
+    var mapAsc = new Map(
+      [...filledMap.entries()].sort(function (a, b) {
+        // Turn your strings into dates, and then subtract them
+        // to get a value that is either negative, positive, or zero.
+        const splittedA = splitDate(a[0]);
+        const splittedB = splitDate(b[0]);
+        const DateA = new Date(splittedA[1] + '-' + splittedA[0] + '-' + splittedA[2]);
+        const DateB = new Date(splittedB[1] + '-' + splittedB[0] + '-' + splittedB[2]);
+        // console.log('DateA', DateA);
+        return DateA - DateB;
+      }),
     );
-    tempMonthIs = { ...monthIs };
-  });
 
-  console.log('filledMap', filledMap);
+    // console.log('----sorted----', mapAsc);
+    converted = convertMapToArray(mapAsc);
 
-  console.log('----sorted----');
+    // console.log('-------converted-------', converted);
+  } else if (mode === 'reverse') {
+    // console.log('filledMap', filledMap);
+    // console.log('rawData', rawData);
 
-  var mapAsc = new Map(
-    [...filledMap.entries()].sort(function (a, b) {
-      // Turn your strings into dates, and then subtract them
-      // to get a value that is either negative, positive, or zero.
-      const splittedA = a[0].split('-');
-      const splittedB = b[0].split('-');
-      const DateA = new Date(splittedA[1] + '-' + splittedA[0] + '-' + splittedA[2]);
-      const DateB = new Date(splittedB[1] + '-' + splittedB[0] + '-' + splittedB[2]);
-      // console.log('DateA', DateA);
-      return DateA - DateB;
-    }),
-  );
+    const extraInfoArray = convertMapToArray(filledMap);
 
-  console.log(mapAsc);
-  convertMapToArray(mapAsc);
+    console.log('extraInfoArray', extraInfoArray);
+
+    // group by month
+    grouped = groupByProperty(extraInfoArray, 'month');
+
+    // console.log('grouped', grouped);
+    // loop in reverse mode for each month and detect if there are missing values for each month
+    // in the beginning
+    let hasMissingValuesPerMonth = false;
+    Object.keys(grouped).forEach((month) => {
+      const splitted = splitDate(grouped[month][0].Date);
+      const monthKey = splitted[1];
+
+      // const currentMonth = new Date().getMonth() + 1;
+      // console.log('currentMonth', currentMonth);
+      if (
+        grouped[month].length !== monthInfo[monthKey].numOfDays
+        // && parseInt(grouped[month][0].order) < currentMonth
+      ) {
+        const monthData = grouped[month];
+        hasMissingValuesPerMonth = true;
+        const firstMonthRecording = monthData[0];
+
+        const numOfMissingDays = monthInfo[monthKey].numOfDays - grouped[month].length;
+        // console.log('----------monthData----------', monthData);
+        // console.log('first recorded value', firstMonthRecording);
+
+        console.log(`month:${month} has ${numOfMissingDays} missing days in the beginning`);
+
+        const splitted = splitDate(firstMonthRecording.Date);
+        const firstDay = parseInt(splitted[0]);
+
+        // loop and fill missing dates in the beginning
+        for (let i = 1; i <= numOfMissingDays; i++) {
+          const dayNumber = prettyValue(firstDay - i);
+          // build date
+          const newDate = `${dayNumber}-${splitted[1]}-${splitted[2]}`;
+          grouped[month].unshift({
+            ...firstMonthRecording,
+            Date: newDate,
+            filled: true,
+          });
+        }
+      }
+    });
+
+    console.log('-----grouped--------', JSON.stringify(grouped));
+    // flaten grouped to converted
+
+    Object.keys(grouped).forEach((month) => {
+      converted.push(...grouped[month]);
+    });
+  }
+
+  console.log('grouped', grouped);
+  return converted;
 };
 
-export default detectMissingValues;
+export default missingValues;
