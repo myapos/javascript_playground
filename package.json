@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --watchAll=true",
+    "test:coverage": "jest --collect-coverage",
     "start": "nodemon -r esm start.js",
     "start:weight": "nodemon --exec babel-node weight_loss.js",
     "lint": "eslint",

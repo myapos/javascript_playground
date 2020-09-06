@@ -17,16 +17,15 @@ const groupByProperty = (ar, prop) => {
   const grouped = {};
 
   ar.forEach((item) => {
-    if (!grouped[item.month]) {
+    if (!grouped[item[prop]]) {
       // create an array with item inside
-      grouped[item.month] = [item];
+      grouped[item[prop]] = [item];
     } else {
       // push it
-      grouped[item.month].push(item);
+      grouped[item[prop]].push(item);
     }
   });
 
-  //   console.log('grouped', grouped);
   return grouped;
 };
 
