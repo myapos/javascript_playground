@@ -23,24 +23,30 @@ const rawData = [];
 fs.createReadStream(FILENAME)
   .pipe(csv())
   .on('data', (row) => {
-    values.push(parseFloat(row['Kgrs'].replace(',', '.')));
+    /* add data only if they exist */
+    if (typeof row !== 'undefined' && row['Kgrs'] && row['Date']) {
+      values.push(parseFloat(row['Kgrs'].replace(',', '.')));
 
-    dates.push(row['Date']);
-    rawData.push(row);
+      dates.push(row['Date']);
+      rawData.push(row);
+    }
   })
   .on('end', () => {
     verboseLog('CSV file successfully processed');
 
-    verboseLog(`values ${values} length ${values.length}`);
-
     // detect any missing dates and fill them
 
-    values = missingValues(rawData, dates, 'forward');
+    values = missingValues(rawData, dates, 'forward').filter(
+      (item) => typeof item !== 'undefined' && item,
+    );
     filledDates = values.map((value) => value.Date);
     filledValues = values.map((value) => {
       const replaced = value['Kgrs'].replace(',', '.');
       return parseFloat(replaced);
     });
+
+    verboseLog(`filledValues ${filledValues}`);
+    verboseLog(`filledValues length ${filledValues.length}`);
 
     const midsY = [];
     const midsX = [];
@@ -55,8 +61,7 @@ fs.createReadStream(FILENAME)
     filledValues.forEach((value, index) => {
       const difference = dateDiffInDays(filledDates[p1], filledDates[p2]);
       const range = filledDates[p1] + ' to ' + filledDates[p2 - 1];
-      if (range.includes('23-08-2020')) {
-      }
+
       // p2 - p1 > dif - 1 ||
       if (difference > dif - 1) {
         slice = filledValues.slice(p1, p2);
@@ -65,16 +70,16 @@ fs.createReadStream(FILENAME)
         p1 = p2;
       }
 
-      const lastDatePeriod = Math.floor(filledValues.length / dif) * dif - 1;
-      verboseLog(`------lastDatePeriod---------- ${lastDatePeriod} index: ${index}`);
+      const lastDatePeriod = Math.floor(filledValues.length / dif) * dif;
+      verboseLog(`lastDatePeriod: ${lastDatePeriod} index: ${index}`);
 
       verboseLog(`index is : ${index} value is: ${value}`);
-      // // get last remaining values
-      // if (index >= lastDatePeriod - 2) {
-      //   verboseLog(`populating remaining values ${index}`);
-      //   remainingValues.push(value);
-      //   verboseLog(`----------remainingValues-------------- ${remainingValues}`);
-      // }
+      // get last remaining values
+      if (index >= lastDatePeriod - 1) {
+        verboseLog(`populating remaining values ${index} , value ${value}`);
+        // remainingValues.push(value);
+        verboseLog(`remainingValues ${remainingValues}`);
+      }
 
       // if (index === filledValues.length - 1) {
       //   // push remainingValues in the last iteration
@@ -91,10 +96,10 @@ fs.createReadStream(FILENAME)
       p2++;
     });
 
-    verboseLog(`remainingValuse completed: ${remainingValues}`);
-    verboseLog(`-------------- slices: ${slices}`);
-    verboseLog(`-------------- midsY: ${midsY}`);
-    verboseLog(`-------------- midsX: ${midsX}`);
+    // verboseLog(`remainingValues completed: ${remainingValues}`);
+    // verboseLog(`slices: ${slices}`);
+    // verboseLog(`midsY: ${midsY}`);
+    // verboseLog(`midsX: ${midsX}`);
 
     var option2 = process.argv.slice(2)[1];
 
