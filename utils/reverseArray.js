@@ -10,7 +10,6 @@ const reverseArray = (ar) => {
     newAr.push(ar[i]);
   }
 
-  console.log('reversed ar', newAr);
   return newAr;
 };
 

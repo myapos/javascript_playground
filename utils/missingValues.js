@@ -8,7 +8,7 @@ function leapYear(year) {
 }
 /* It adds a zero if value is smaller than ten. This will help to keep unique values in Map */
 const prettyValue = (value) => {
-  let pretty = parseInt(value);
+  let pretty = parseFloat(value);
   if (pretty < 10) {
     pretty = `0${pretty}`;
   }
@@ -87,7 +87,6 @@ const nextDateExists = (raw, dayOfMonth, monthIs, dates, year) => {
   }
 
   const nextDate = `${prettyValue(nextDay)}-${monthIs.order}-${year}`;
-
   return {
     exists: dates.includes(nextDate),
     nextDate,
@@ -104,7 +103,6 @@ const convertArrayToMap = (ar) => {
 
     // detect key
     const prettyKey = prettyValue(splitted[1]);
-    // console.log('prettyKey', prettyKey);
 
     myMap.set(raw.Date, {
       ...raw,
@@ -139,20 +137,21 @@ const convertMapToArray = (myMap) => {
  * year and it fills in the missing dates with the value of previous day. In reverse mode it scans the  data in
  * reverse and fills the missing date with the next date. The result should be a range with full dates containing
  * values from prexisted data
+ *
+ * rawData: raw data from parsing csv. it is an array of json objects
+ * dates: the array of dates extracted from rawData
+ * mode: can be 'forward' or 'reverse' string
  */
 const missingValues = (rawData, dates, mode) => {
   let converted = [];
   let grouped;
   verboseLog('---------detectMissingValues--------------');
   console.log('---------detectMissingValues--------------', mode);
-  // const filled = [...rawData];
-  // console.log('rawData', rawData);
   const filledMap = convertArrayToMap(rawData);
 
   // get the first month in the values
   let tempMonth = rawData[0].Date.split('-')[1];
   let tempMonthIs = monthInfo[tempMonth];
-  console.log('tempMonth detection', tempMonth, tempMonthIs);
 
   if (mode === 'forward') {
     // loop
@@ -160,7 +159,7 @@ const missingValues = (rawData, dates, mode) => {
       // console.log('raw', raw, ' index', index);
 
       // detect dayOfMonth
-      const dayOfMonth = parseInt(raw.Date.split('-')[0]);
+      const dayOfMonth = parseFloat(raw.Date.split('-')[0]);
 
       // check for the first day in each month
       // detect month
@@ -196,7 +195,7 @@ const missingValues = (rawData, dates, mode) => {
           order: monthInfo[prettyValue(splittedKey[1])].order,
         });
         monthOfNextDate = nextDate.split('-')[1];
-        const nextDayOfMonth = prettyValue(parseInt(nextDate.split('-')[0]));
+        const nextDayOfMonth = prettyValue(parseFloat(nextDate.split('-')[0]));
         nextDayIsInSameMonth = monthOfNextDate === monthIs.order;
         ({ exists, nextDate } = nextDateExists(nextDate, nextDayOfMonth, monthIs, dates, year));
 
@@ -228,12 +227,7 @@ const missingValues = (rawData, dates, mode) => {
 
     // console.log('-------converted-------', converted);
   } else if (mode === 'reverse') {
-    // console.log('filledMap', filledMap);
-    // console.log('rawData', rawData);
-
     const extraInfoArray = convertMapToArray(filledMap);
-
-    // console.log('extraInfoArray', extraInfoArray);
 
     // group by month
     grouped = groupByProperty(extraInfoArray, 'month');
@@ -250,7 +244,7 @@ const missingValues = (rawData, dates, mode) => {
       // console.log('currentMonth', currentMonth);
       if (
         grouped[month].length !== monthInfo[monthKey].numOfDays
-        // && parseInt(grouped[month][0].order) < currentMonth
+        // && parseFloat(grouped[month][0].order) < currentMonth
       ) {
         const monthData = grouped[month];
         hasMissingValuesPerMonth = true;
@@ -263,7 +257,7 @@ const missingValues = (rawData, dates, mode) => {
         console.log(`month:${month} has ${numOfMissingDays} missing days in the beginning`);
 
         const splitted = splitDate(firstMonthRecording.Date);
-        const firstDay = parseInt(splitted[0]);
+        const firstDay = parseFloat(splitted[0]);
 
         // loop and fill missing dates in the beginning
         for (let i = 1; i <= numOfMissingDays; i++) {
