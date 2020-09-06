@@ -145,8 +145,7 @@ const convertMapToArray = (myMap) => {
 const missingValues = (rawData, dates, mode) => {
   let converted = [];
   let grouped;
-  verboseLog('---------detectMissingValues--------------');
-  console.log('---------detectMissingValues--------------', mode);
+  verboseLog('---------detectMissingValues-------------- ' + mode);
   const filledMap = convertArrayToMap(rawData);
 
   // get the first month in the values
@@ -156,8 +155,6 @@ const missingValues = (rawData, dates, mode) => {
   if (mode === 'forward') {
     // loop
     rawData.forEach((raw, index) => {
-      // console.log('raw', raw, ' index', index);
-
       // detect dayOfMonth
       const dayOfMonth = parseFloat(raw.Date.split('-')[0]);
 
@@ -202,9 +199,6 @@ const missingValues = (rawData, dates, mode) => {
         counter++;
       }
 
-      // console.log(
-      //   `initial date: ${raw.Date} does next date ${nextDate} exists: ${exists} missing days: ${counter}`,
-      // );
       tempMonthIs = { ...monthIs };
     });
 
@@ -222,10 +216,7 @@ const missingValues = (rawData, dates, mode) => {
       }),
     );
 
-    // console.log('----sorted----', mapAsc);
     converted = convertMapToArray(mapAsc);
-
-    // console.log('-------converted-------', converted);
   } else if (mode === 'reverse') {
     const extraInfoArray = convertMapToArray(filledMap);
 
@@ -240,12 +231,7 @@ const missingValues = (rawData, dates, mode) => {
       const splitted = splitDate(grouped[month][0].Date);
       const monthKey = splitted[1];
 
-      // const currentMonth = new Date().getMonth() + 1;
-      // console.log('currentMonth', currentMonth);
-      if (
-        grouped[month].length !== monthInfo[monthKey].numOfDays
-        // && parseFloat(grouped[month][0].order) < currentMonth
-      ) {
+      if (grouped[month].length !== monthInfo[monthKey].numOfDays) {
         const monthData = grouped[month];
         hasMissingValuesPerMonth = true;
         const firstMonthRecording = monthData[0];

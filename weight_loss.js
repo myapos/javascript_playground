@@ -41,10 +41,7 @@ fs.createReadStream(FILENAME)
       const replaced = value['Kgrs'].replace(',', '.');
       return parseFloat(replaced);
     });
-    // parseFloat(row['Kgrs'].replace(',', '.')));
 
-    console.log('---------- filled data', JSON.stringify(values));
-    console.log('---------- filled values', JSON.stringify(filledValues));
     const midsY = [];
     const midsX = [];
 
@@ -59,8 +56,6 @@ fs.createReadStream(FILENAME)
       const difference = dateDiffInDays(filledDates[p1], filledDates[p2]);
       const range = filledDates[p1] + ' to ' + filledDates[p2 - 1];
       if (range.includes('23-08-2020')) {
-        console.log('found');
-        // debugger;
       }
       // p2 - p1 > dif - 1 ||
       if (difference > dif - 1) {
@@ -74,23 +69,23 @@ fs.createReadStream(FILENAME)
       verboseLog(`------lastDatePeriod---------- ${lastDatePeriod} index: ${index}`);
 
       verboseLog(`index is : ${index} value is: ${value}`);
-      // get last remaining values
-      if (index >= lastDatePeriod - 2) {
-        verboseLog(`populating remaining values ${index}`);
-        remainingValues.push(value);
-        verboseLog(`----------remainingValues-------------- ${remainingValues}`);
-      }
+      // // get last remaining values
+      // if (index >= lastDatePeriod - 2) {
+      //   verboseLog(`populating remaining values ${index}`);
+      //   remainingValues.push(value);
+      //   verboseLog(`----------remainingValues-------------- ${remainingValues}`);
+      // }
 
-      if (index === filledValues.length - 1) {
-        // push remainingValues in the last iteration
-        slices.push(remainingValues);
-        addMean({
-          slice: remainingValues,
-          midsY,
-          range: filledDates[lastDatePeriod - 2] + ' to Today',
-          midsX,
-        });
-      }
+      // if (index === filledValues.length - 1) {
+      //   // push remainingValues in the last iteration
+      //   slices.push(remainingValues);
+      //   addMean({
+      //     slice: remainingValues,
+      //     midsY,
+      //     range: filledDates[lastDatePeriod - 2] + ' to Today',
+      //     midsX,
+      //   });
+      // }
 
       // increase counter
       p2++;
