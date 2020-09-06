@@ -12,6 +12,7 @@ import dateDiffInDays from './utils/dateDiffInDays';
 import verboseLog from './utils/verboseLog';
 import missingValues from './utils/missingValues';
 
+// const FILENAME = './data/weight_loss_minimal.csv';
 const FILENAME = './data/weight_loss.csv';
 
 let values = [];
@@ -45,6 +46,7 @@ fs.createReadStream(FILENAME)
       return parseFloat(replaced);
     });
 
+    // console.log('filledDates', JSON.stringify(filledDates));
     verboseLog(`filledValues ${filledValues}`);
     verboseLog(`filledValues length ${filledValues.length}`);
 
@@ -56,6 +58,10 @@ fs.createReadStream(FILENAME)
     let p1 = 0,
       p2 = 0;
     let dif = 7;
+
+    //
+    const lastDateIndexPeriod = Math.floor(filledValues.length / (dif - 1)) * (dif - 1);
+    verboseLog(`lastDateIndexPeriod: ${lastDateIndexPeriod}`);
 
     let remainingValues = [];
     filledValues.forEach((value, index) => {
@@ -70,27 +76,27 @@ fs.createReadStream(FILENAME)
         p1 = p2;
       }
 
-      const lastDatePeriod = Math.floor(filledValues.length / dif) * dif;
-      verboseLog(`lastDatePeriod: ${lastDatePeriod} index: ${index}`);
-
-      verboseLog(`index is : ${index} value is: ${value}`);
+      // verboseLog(`index is : ${index} value is: ${value}`);
       // get last remaining values
-      if (index >= lastDatePeriod - 1) {
-        verboseLog(`populating remaining values ${index} , value ${value}`);
-        // remainingValues.push(value);
+      if (parseInt(index) >= parseInt(lastDateIndexPeriod)) {
+        verboseLog(
+          `populating remaining values ${index} , value ${value} lastDateIndexPeriod ${lastDateIndexPeriod}`,
+        );
+        remainingValues.push(value);
         verboseLog(`remainingValues ${remainingValues}`);
       }
 
-      // if (index === filledValues.length - 1) {
-      //   // push remainingValues in the last iteration
-      //   slices.push(remainingValues);
-      //   addMean({
-      //     slice: remainingValues,
-      //     midsY,
-      //     range: filledDates[lastDatePeriod - 2] + ' to Today',
-      //     midsX,
-      //   });
-      // }
+      if (index === filledValues.length - 1) {
+        verboseLog(`last iteration ${remainingValues} ${filledDates}`);
+        // push remainingValues in the last iteration
+        slices.push(remainingValues);
+        addMean({
+          slice: remainingValues,
+          midsY,
+          range: filledDates[lastDateIndexPeriod] + ' to Today',
+          midsX,
+        });
+      }
 
       // increase counter
       p2++;
@@ -98,8 +104,8 @@ fs.createReadStream(FILENAME)
 
     // verboseLog(`remainingValues completed: ${remainingValues}`);
     // verboseLog(`slices: ${slices}`);
-    // verboseLog(`midsY: ${midsY}`);
-    // verboseLog(`midsX: ${midsX}`);
+    verboseLog(`midsY: ${midsY}`);
+    verboseLog(`midsX: ${midsX}`);
 
     var option2 = process.argv.slice(2)[1];
 

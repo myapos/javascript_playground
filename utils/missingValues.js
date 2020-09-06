@@ -276,25 +276,27 @@ const missingValues = (rawData, dates, mode) => {
   const curMonth = currentDate.getMonth() + 1;
   const curDate = currentDate.getDate();
   // get Month
-  console.log(
-    'currentDate',
-    currentDate,
-    currentDate.getMonth() + 1,
-    ' current Day',
-    currentDate.getDate(),
-  );
+  // console.log(
+  //   'currentDate',
+  //   currentDate,
+  //   currentDate.getMonth() + 1,
+  //   ' current Day',
+  //   currentDate.getDate(),
+  // );
 
+  // const droppedDates = converted;
   const droppedDates = converted.filter((item) => {
     const itemDate = splitDate(item.Date);
 
     // if we are in current month and item day is greater than the current day return false
     if (parseInt(itemDate[1]) === curMonth && parseInt(itemDate[0]) > curDate) {
-      console.log('same month itemDate', itemDate);
+      // console.log('same month itemDate', itemDate);
       return false;
     }
 
     return true;
   });
+
   return droppedDates;
 };
 
