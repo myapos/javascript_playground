@@ -101,10 +101,20 @@ fs.createReadStream(FILENAME)
     verboseLog(`-------------- midsY: ${midsY}`);
     verboseLog(`-------------- midsX: ${midsX}`);
 
-    const data = [{ x: midsX, y: midsY, type: 'line' }];
-    plot(data);
+    var option2 = process.argv.slice(2)[1];
 
-    // plot initial data
-    const data_ = [{ x: filledDates, y: filledValues, type: 'line' }];
-    plot(data_);
+    if (option2 === 'graphs') {
+      /**
+       * examples:
+       * npm start - graphs
+       * npm start '' graphs
+       * npm start verbose graphs
+       */
+      const data = [{ x: midsX, y: midsY, type: 'line' }];
+      plot(data);
+
+      // plot initial data
+      const data_ = [{ x: filledDates, y: filledValues, type: 'line' }];
+      plot(data_);
+    }
   });
