@@ -10,28 +10,45 @@ import { plot } from 'nodeplotlib';
 import addMean from './utils/addMean';
 import dateDiffInDays from './utils/dateDiffInDays';
 import verboseLog from './utils/verboseLog';
+import missingValues from './utils/missingValues';
 
+// const FILENAME = './data/weight_loss_minimal.csv';
 const FILENAME = './data/weight_loss.csv';
 
-const values = [];
+let values = [];
 const dates = [];
+let filledDates = [];
+let filledValues = [];
+const rawData = [];
 
 fs.createReadStream(FILENAME)
   .pipe(csv())
   .on('data', (row) => {
-    // console.log('reveived data', row['Kgrs']);
-    values.push(parseFloat(row['Kgrs'].replace(',', '.')));
+    /* add data only if they exist */
+    if (typeof row !== 'undefined' && row['Kgrs'] && row['Date']) {
+      values.push(parseFloat(row['Kgrs'].replace(',', '.')));
 
-    dates.push(row['Date']);
+      dates.push(row['Date']);
+      rawData.push(row);
+    }
   })
   .on('end', () => {
     verboseLog('CSV file successfully processed');
 
-    verboseLog(`values ${values} length ${values.length}`);
-
     // detect any missing dates and fill them
 
-    // console.log('dates', dates);
+    values = missingValues(rawData, dates, 'forward').filter(
+      (item) => typeof item !== 'undefined' && item,
+    );
+    filledDates = values.map((value) => value.Date);
+    filledValues = values.map((value) => {
+      const replaced = value['Kgrs'].replace(',', '.');
+      return parseFloat(replaced);
+    });
+
+    // console.log('filledDates', JSON.stringify(filledDates));
+    verboseLog(`filledValues ${filledValues}`);
+    verboseLog(`filledValues length ${filledValues.length}`);
 
     const midsY = [];
     const midsX = [];
@@ -42,36 +59,41 @@ fs.createReadStream(FILENAME)
       p2 = 0;
     let dif = 7;
 
+    //
+    const lastDateIndexPeriod = Math.floor(filledValues.length / (dif - 1)) * (dif - 1);
+    verboseLog(`lastDateIndexPeriod: ${lastDateIndexPeriod}`);
+
     let remainingValues = [];
-    values.forEach((value, index) => {
-      const difference = dateDiffInDays(dates[p1], dates[p2]);
+    filledValues.forEach((value, index) => {
+      const difference = dateDiffInDays(filledDates[p1], filledDates[p2]);
+      const range = filledDates[p1] + ' to ' + filledDates[p2 - 1];
+
       // p2 - p1 > dif - 1 ||
       if (difference > dif - 1) {
-        slice = values.slice(p1, p2);
-        // console.log('slice',slice, ' midsY', midsY)
-        addMean({ slice, midsY, range: dates[p1] + ' to ' + dates[p2 - 1], midsX });
+        slice = filledValues.slice(p1, p2);
+        addMean({ slice, midsY, range: range, midsX });
         slices.push(slice);
         p1 = p2;
       }
 
-      const lastDatePeriod = Math.floor(values.length / dif) * dif - 1;
-      verboseLog(`------lastDatePeriod---------- ${lastDatePeriod} index: ${index}`);
-
-      verboseLog(`index is : ${index} value is: ${value}`);
+      // verboseLog(`index is : ${index} value is: ${value}`);
       // get last remaining values
-      if (index >= lastDatePeriod - 2) {
-        verboseLog(`populating remaining values ${index}`);
+      if (parseInt(index) >= parseInt(lastDateIndexPeriod)) {
+        verboseLog(
+          `populating remaining values ${index} , value ${value} lastDateIndexPeriod ${lastDateIndexPeriod}`,
+        );
         remainingValues.push(value);
-        verboseLog(`----------remainingValues-------------- ${remainingValues}`);
+        // verboseLog(`remainingValues ${remainingValues}`);
       }
 
-      if (index === values.length - 1) {
+      if (index === filledValues.length - 1) {
+        verboseLog(`last iteration ${remainingValues} ${filledDates}`);
         // push remainingValues in the last iteration
         slices.push(remainingValues);
         addMean({
           slice: remainingValues,
           midsY,
-          range: dates[lastDatePeriod - 2] + ' to Today',
+          range: filledDates[lastDateIndexPeriod] + ' to Today',
           midsX,
         });
       }
@@ -80,15 +102,25 @@ fs.createReadStream(FILENAME)
       p2++;
     });
 
-    verboseLog(`remainingValuse completed: ${remainingValues}`);
-    verboseLog(`-------------- slices: ${slices}`);
-    verboseLog(`-------------- midsY: ${midsY}`);
-    verboseLog(`-------------- midsX: ${midsX}`);
+    // verboseLog(`remainingValues completed: ${remainingValues}`);
+    // verboseLog(`slices: ${slices}`);
+    verboseLog(`midsY: ${midsY}`);
+    verboseLog(`midsX: ${midsX}`);
 
-    const data = [{ x: midsX, y: midsY, type: 'line' }];
-    plot(data);
+    var option2 = process.argv.slice(2)[1];
 
-    // plot initial data
-    const data_ = [{ x: dates, y: values, type: 'line' }];
-    plot(data_);
+    if (option2 === 'graphs') {
+      /**
+       * examples:
+       * npm start - graphs
+       * npm start '' graphs
+       * npm start verbose graphs
+       */
+      const data = [{ x: midsX, y: midsY, type: 'line' }];
+      plot(data);
+
+      // plot initial data
+      const data_ = [{ x: filledDates, y: filledValues, type: 'line' }];
+      plot(data_);
+    }
   });

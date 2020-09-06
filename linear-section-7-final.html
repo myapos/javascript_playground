@@ -109,7 +109,7 @@
       }
 
       async function predict() {
-        const predictionInput = parseInt(document.getElementById('prediction-input').value);
+        const predictionInput = parseFloat(document.getElementById('prediction-input').value);
         if (isNaN(predictionInput)) {
           alert('Please enter a valid number');
         } else if (predictionInput < 200) {
