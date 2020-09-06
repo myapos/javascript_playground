@@ -83,7 +83,7 @@ fs.createReadStream(FILENAME)
           `populating remaining values ${index} , value ${value} lastDateIndexPeriod ${lastDateIndexPeriod}`,
         );
         remainingValues.push(value);
-        verboseLog(`remainingValues ${remainingValues}`);
+        // verboseLog(`remainingValues ${remainingValues}`);
       }
 
       if (index === filledValues.length - 1) {
