@@ -39,7 +39,6 @@ describe('groupByProperty', () => {
     };
 
     const grouped = groupByProperty(data, 'payed');
-    console.log('groupped', grouped);
 
     // expect(JSON.stringify(grouped)).toEqual(JSON.stringify(expectedOutput));
     expect(grouped).toMatchObject(expectedOutput);
