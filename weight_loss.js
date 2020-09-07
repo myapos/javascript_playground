@@ -1,7 +1,9 @@
 /* It reads weight loss data from csv file located in data folder and generates two graphs. The first one
 is a simple representation of the raw csv data. The second displays the average deviation per week. 
+
 Usage: 
-verbose mode prints logs in the output about the calcluated periods, difference days and segments
+
+Verbose mode prints logs in the output about the calculated periods, difference days and segments
 Example: npm start verbose */
 import csv from 'csv-parser';
 import fs from 'fs';
@@ -36,7 +38,6 @@ fs.createReadStream(FILENAME)
     verboseLog('CSV file successfully processed');
 
     // detect any missing dates and fill them
-
     values = missingValues(rawData, dates, 'forward').filter(
       (item) => typeof item !== 'undefined' && item,
     );
@@ -46,7 +47,6 @@ fs.createReadStream(FILENAME)
       return parseFloat(replaced);
     });
 
-    // console.log('filledDates', JSON.stringify(filledDates));
     verboseLog(`filledValues ${filledValues}`);
     verboseLog(`filledValues length ${filledValues.length}`);
 
@@ -76,14 +76,12 @@ fs.createReadStream(FILENAME)
         p1 = p2;
       }
 
-      // verboseLog(`index is : ${index} value is: ${value}`);
       // get last remaining values
       if (parseInt(index) >= parseInt(lastDateIndexPeriod)) {
         verboseLog(
           `populating remaining values ${index} , value ${value} lastDateIndexPeriod ${lastDateIndexPeriod}`,
         );
         remainingValues.push(value);
-        // verboseLog(`remainingValues ${remainingValues}`);
       }
 
       if (index === filledValues.length - 1) {
