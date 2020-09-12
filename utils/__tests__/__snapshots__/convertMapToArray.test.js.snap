@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`convertMapToArray will convert array to Map 1`] = `
+Array [
+  Object {
+    "Date": "14-03-2020",
+    "Kgrs": "108",
+    "filled": false,
+    "month": "March",
+    "order": "03",
+  },
+  Object {
+    "Date": "03-05-2020",
+    "Kgrs": "104,9",
+    "filled": false,
+    "month": "May",
+    "order": "05",
+  },
+  Object {
+    "Date": "12-05-2020",
+    "Kgrs": "103,6",
+    "filled": false,
+    "month": "May",
+    "order": "05",
+  },
+  Object {
+    "Date": "18-05-2020",
+    "Kgrs": "104,7",
+    "filled": false,
+    "month": "May",
+    "order": "05",
+  },
+  Object {
+    "Date": "19-05-2020",
+    "Kgrs": "104,2",
+    "filled": false,
+    "month": "May",
+    "order": "05",
+  },
+  Object {
+    "Date": "20-05-2020",
+    "Kgrs": "104,2",
+    "filled": false,
+    "month": "May",
+    "order": "05",
+  },
+  Object {
+    "Date": "21-05-2020",
+    "Kgrs": "104,2",
+    "filled": false,
+    "month": "May",
+    "order": "05",
+  },
+  Object {
+    "Date": "22-05-2020",
+    "Kgrs": "103,7",
+    "filled": false,
+    "month": "May",
+    "order": "05",
+  },
+  Object {
+    "Date": "23-05-2020",
+    "Kgrs": "103,7",
+    "filled": false,
+    "month": "May",
+    "order": "05",
+  },
+  Object {
+    "Date": "24-05-2020",
+    "Kgrs": "103,2",
+    "filled": false,
+    "month": "May",
+    "order": "05",
+  },
+  Object {
+    "Date": "25-05-2020",
+    "Kgrs": "102,8",
+    "filled": false,
+    "month": "May",
+    "order": "05",
+  },
+  Object {
+    "Date": "26-05-2020",
+    "Kgrs": "103,1",
+    "filled": false,
+    "month": "May",
+    "order": "05",
+  },
+]
+`;

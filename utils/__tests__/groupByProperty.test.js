@@ -1,10 +1,6 @@
 import groupByProperty from '../groupByProperty';
 
 describe('groupByProperty', () => {
-  it('to be dummy', () => {
-    expect(true).toEqual(true);
-  });
-
   it('will group data by property in array', () => {
     const data = [
       {

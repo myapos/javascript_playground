@@ -37,6 +37,7 @@ fs.createReadStream(FILENAME)
   .on('end', () => {
     verboseLog('CSV file successfully processed');
 
+    // verboseLog('rawData ' + JSON.stringify(rawData, null, 2));
     // detect any missing dates and fill them
     values = missingValues(rawData, dates, 'forward').filter(
       (item) => typeof item !== 'undefined' && item,

@@ -54,6 +54,9 @@
     "moduleDirectories": [
       "node_modules",
       "./utils"
+    ],
+    "modulePathIgnorePatterns": [
+      "__data__"
     ]
   }
 }
