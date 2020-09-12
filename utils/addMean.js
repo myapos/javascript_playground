@@ -1,8 +1,11 @@
 import sum from './sum';
 
-const addMean = ({ slice, midsY, range, midsX }) => {
+/**
+ * It accepts an array with values calculates the mean value of the values of the array. The mean is added to the
+ * midsY. midsY and midsX are passed by reference and they used to gather the mean and the range values
+ */
+const addMean = ({ slice, midsX, midsY, range }) => {
   // export values from slice objects
-
   const sliceValues = slice.map((item) => parseFloat(item));
 
   const sumSlice = sum(...sliceValues);

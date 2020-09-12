@@ -1,5 +1,3 @@
-import { reverse } from 'lodash';
-
 /** It get an array and creates a new one with reversed order
  *
  */
