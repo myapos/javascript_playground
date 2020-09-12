@@ -24,7 +24,7 @@ function dateDiffInDays(a, b) {
   const utc2 = Date.UTC(bDate.getFullYear(), bDate.getMonth(), bDate.getDate());
   const difference = Math.floor((utc2 - utc1) / _MS_PER_DAY);
 
-  verboseLog(`${a} to ${b} difference is ${difference}`);
+  // verboseLog(`${a} to ${b} difference is ${difference}`);
   return difference;
 }
 
