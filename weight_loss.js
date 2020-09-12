@@ -38,10 +38,10 @@ fs.createReadStream(FILENAME)
     verboseLog('CSV file successfully processed');
 
     // verboseLog('rawData ' + JSON.stringify(rawData, null, 2));
+
+    console.log('dates', JSON.stringify(dates, null, 2));
     // detect any missing dates and fill them
-    values = missingValues(rawData, dates, 'forward').filter(
-      (item) => typeof item !== 'undefined' && item,
-    );
+    values = missingValues(rawData, dates, 'forward');
     filledDates = values.map((value) => value.Date);
     filledValues = values.map((value) => {
       const replaced = value['Kgrs'].replace(',', '.');

@@ -1,5 +1,4 @@
 import splitDate from '../splitDate';
-import { split } from 'lodash';
 
 describe('splitDate', () => {
   it('to return a value of three elements', () => {

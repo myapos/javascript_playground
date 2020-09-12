@@ -159,17 +159,19 @@ const missingValues = (rawData, dates, mode) => {
   // );
 
   // const droppedDates = converted;
-  const droppedDates = converted.filter((item) => {
-    const itemDate = splitDate(item.Date);
+  const droppedDates = converted
+    .filter((item) => {
+      const itemDate = splitDate(item.Date);
 
-    // if we are in current month and item day is greater than the current day return false
-    if (parseInt(itemDate[1]) === curMonth && parseInt(itemDate[0]) > curDate) {
-      // console.log('same month itemDate', itemDate);
-      return false;
-    }
+      // if we are in current month and item day is greater than the current day return false
+      if (parseInt(itemDate[1]) === curMonth && parseInt(itemDate[0]) > curDate) {
+        // console.log('same month itemDate', itemDate);
+        return false;
+      }
 
-    return true;
-  });
+      return true;
+    })
+    .filter((item) => typeof item !== 'undefined' && item);
 
   return droppedDates;
 };
