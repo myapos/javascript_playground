@@ -29,5 +29,6 @@ fs.createReadStream(FILENAME)
   })
   .on('end', () => {
     verboseLog('CSV file successfully processed');
-    calculate_weight_loss(rawData, dates);
+    const currentDate = new Date();
+    calculate_weight_loss({ rawData, dates, currentDate });
   });

@@ -15,8 +15,9 @@ import convertArrayToMap from './convertArrayToMap';
  * rawData: raw data from parsing csv. it is an array of json objects
  * dates: the array of dates extracted from rawData
  * mode: can be 'forward' or 'reverse' string
+ * currentDate: self explanatory
  */
-const missingValues = (rawData, dates, mode) => {
+const missingValues = ({ rawData, dates, mode, currentDate }) => {
   let converted = [];
   let grouped;
   verboseLog('---------detectMissingValues-------------- ' + mode);
@@ -144,8 +145,6 @@ const missingValues = (rawData, dates, mode) => {
   // console.log('converted', JSON.stringify(converted, null, 0, 2));
 
   // drop data after current date
-
-  const currentDate = new Date();
 
   const curMonth = currentDate.getMonth() + 1;
   const curDate = currentDate.getDate();
