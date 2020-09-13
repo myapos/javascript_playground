@@ -26,7 +26,6 @@ describe('calculate weight loss graph values', () => {
       currentDate: mockDate,
     });
 
-    // expect(spyDate).toHaveBeenCalled();
     expect(midsX).toMatchSnapshot();
     expect(midsY).toMatchSnapshot();
     expect(filledDates).toMatchSnapshot();
