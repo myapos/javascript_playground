@@ -12,14 +12,14 @@ import dateDiffInDays from './dateDiffInDays';
 import missingValues from './missingValues';
 import verboseLog from './verboseLog';
 
-const calculate_weight_loss = (rawData, dates) => {
+const calculate_weight_loss = ({ rawData, dates, currentDate }) => {
   let values = [];
 
   let filledDates = [];
   let filledValues = [];
 
   // detect any missing dates and fill them
-  values = missingValues(rawData, dates, 'forward');
+  values = missingValues({ rawData, dates, mode: 'forward', currentDate });
   filledDates = values.map((value) => value.Date);
   filledValues = values.map((value) => {
     const replaced = value['Kgrs'].replace(',', '.');
