@@ -9,6 +9,7 @@ import csv from 'csv-parser';
 import fs from 'fs';
 
 import calculate_weight_loss from './utils/calculate_weight_loss';
+import perdictions from './utils/predictions';
 import verboseLog from './utils/verboseLog';
 // const FILENAME = './data/weight_loss_minimal.csv';
 const FILENAME = './data/weight_loss.csv';
@@ -30,5 +31,17 @@ fs.createReadStream(FILENAME)
   .on('end', () => {
     verboseLog('CSV file successfully processed');
     const currentDate = new Date();
-    calculate_weight_loss({ rawData, dates, currentDate });
+    const { midsX, midsY, filledDates, filledValues } = calculate_weight_loss({
+      rawData,
+      dates,
+      currentDate,
+    });
+
+    /**Use tensorflow js to make predictions
+     *
+     * Steps to follow
+     *
+     */
+
+    perdictions({ midsX, midsY, filledDates, filledValues });
   });
