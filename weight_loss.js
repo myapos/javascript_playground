@@ -9,7 +9,8 @@ import csv from 'csv-parser';
 import fs from 'fs';
 
 import calculate_weight_loss from './utils/calculate_weight_loss';
-import perdictions from './utils/predictions';
+import predictions from './utils/predictions';
+import basic_linear_regression from './utils/basic_linear_regression';
 import verboseLog from './utils/verboseLog';
 // const FILENAME = './data/weight_loss_minimal.csv';
 const FILENAME = './data/weight_loss.csv';
@@ -43,5 +44,7 @@ fs.createReadStream(FILENAME)
      *
      */
 
-    perdictions({ midsX, midsY, filledDates, filledValues });
+    // predictions({ midsX, midsY, filledDates, filledValues });
+    // basic_linear_regression({ midsX, midsY, filledDates, filledValues });
+    basic_linear_regression();
   });

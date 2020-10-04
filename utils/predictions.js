@@ -1,7 +1,6 @@
 import * as tf from '@tensorflow/tfjs-node-gpu';
 import createDate from './createDate';
 import convertToTimestaps from './convertToTimestamps';
-import convertToTimestamps from './convertToTimestamps';
 
 /**
  * It will print tensor info
@@ -9,7 +8,6 @@ import convertToTimestamps from './convertToTimestamps';
 const tensorInfo = () => {
   console.log('TensorFlow.js version information: ');
   console.log(tf.version);
-
   console.log(`TensorFlow.js backend: ${tf.getBackend()}`);
 };
 
@@ -69,7 +67,7 @@ async function predict(model, normalisedFeature, normalisedLabel) {
   tf.tidy(() => {
     console.log('normalisedFeature', normalisedFeature);
     // const date = [new Date()];
-    const date = [new Date(), new Date('09-20-20')];
+    const date = [new Date(), new Date('09-20-2020')];
     // const date = [new Date()];
 
     const toTimeStamp = convertToTimestamps(date);
