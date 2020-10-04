@@ -1,7 +1,6 @@
 import * as tf from '@tensorflow/tfjs-node-gpu';
 
-// https://medium.com/@tristansokol/basic-tutorial-with-tensorflow-js-linear-regression-aa68b16e5b8e
-const basic_linear_regression = (trainX, trainY) => {
+const linear_regression = ({ trainY, trainX, learning_rate = 0.005, steps = 1000 }) => {
   /** linear regression
    * y = mx + b
    * m,b : 1 dimensional tensors
@@ -29,8 +28,7 @@ const basic_linear_regression = (trainX, trainY) => {
   }
 
   function train() {
-    const learningRate = 0.005;
-    const optimizer = tf.train.sgd(learningRate);
+    const optimizer = tf.train.sgd(learning_rate);
 
     optimizer.minimize(function () {
       const predsYs = predict(tf.tensor1d(trainX));
@@ -41,8 +39,6 @@ const basic_linear_regression = (trainX, trainY) => {
       return stepLoss;
     });
   }
-
-  const steps = 10000;
 
   for (let epochs = 1; epochs < steps; epochs++) {
     train();
@@ -59,4 +55,4 @@ const basic_linear_regression = (trainX, trainY) => {
   };
 };
 
-export default basic_linear_regression;
+export default linear_regression;

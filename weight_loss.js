@@ -8,9 +8,12 @@ Example: npm start verbose */
 import csv from 'csv-parser';
 import fs from 'fs';
 
+import * as tf from '@tensorflow/tfjs-node-gpu';
+
 import calculate_weight_loss from './utils/calculate_weight_loss';
 import predictions from './utils/predictions';
 import basic_linear_regression from './utils/basic_linear_regression';
+import linear_regression from './utils/linear_regression';
 import verboseLog from './utils/verboseLog';
 // const FILENAME = './data/weight_loss_minimal.csv';
 const FILENAME = './data/weight_loss.csv';
@@ -46,5 +49,103 @@ fs.createReadStream(FILENAME)
 
     // predictions({ midsX, midsY, filledDates, filledValues });
     // basic_linear_regression({ midsX, midsY, filledDates, filledValues });
-    basic_linear_regression();
+
+    const num_of_samples = 1000;
+    const trainX = [];
+    const trainY = [];
+    // create fake data with a secret function and try to predict m and b
+    const linearFn = (x) => 0.2 * x + 0.9;
+
+    for (let i = 0; i < num_of_samples; i++) {
+      const x = Math.random();
+      trainX.push(x);
+      trainY.push(linearFn(x));
+    }
+
+    // const result = basic_linear_regression(trainX, trainY);
+
+    // console.log(result);
+
+    const tuningParameters = [
+      {
+        learning_rate: 0.005,
+        steps: 10000,
+      },
+      {
+        learning_rate: 0.005,
+        steps: 500,
+      },
+      {
+        learning_rate: 0.1,
+        steps: 2000,
+      },
+      {
+        learning_rate: 0.01,
+        steps: 500,
+      },
+      {
+        learning_rate: 0.0001,
+        steps: 10000,
+      },
+    ];
+
+    // const trainY = midsY.map((value) => parseFloat(value));
+    // const trainX = midsY.map((value, index) => index);
+
+    console.log('trainY', trainY);
+    console.log('trainX', trainX);
+
+    const results = tuningParameters.map((combination) => {
+      return linear_regression({
+        // values: midsY,
+        trainY,
+        trainX,
+        learning_rate: combination.learning_rate,
+        steps: combination.steps,
+      });
+    });
+
+    // console.log('constants', constants);
+
+    // find combination with minimum total loss
+
+    // sort in increasing order and extract the first element
+
+    const sortedResults = results.sort(function (a, b) {
+      return a.totalLoss - b.totalLoss;
+    });
+
+    // console.log('sortedConstants', sortedConstants);
+
+    const bestResult = sortedResults[0];
+
+    // console.log('bestResult:', bestResult);
+    // bestResult.m.print();
+    // bestResult.b.print();
+
+    // // predict values to the future for next weeks
+    // /** linear regression
+    //  * y = mx + b
+    //  * m,b : 1 dimensional tensors
+    //  **/
+    const futureFn = (time, m, b) => m.mul(time).add(b); // m * time + b;
+
+    // // console.log('values length', values.length);
+
+    const futures = [1, 2, 3, 4].map((time) => values.length + time);
+
+    console.log('futures', futures);
+    bestResult.m.print();
+    bestResult.b.print();
+
+    futures.forEach((future) => {
+      const value = futureFn(future, bestResult.m, bestResult.b);
+      console.log('predicted for x:', future);
+      value.print();
+    });
+
+    futures.forEach((future) => {
+      const value = linearFn(future);
+      console.log('real value for future', future, ':', value);
+    });
   });
