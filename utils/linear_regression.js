@@ -28,7 +28,7 @@ const linear_regression = ({ trainY, trainX, learning_rate = 0.005, steps = 1000
   }
 
   function train() {
-    const optimizer = tf.train.sgd(learning_rate);
+    const optimizer = tf.train.adam(learning_rate);
 
     optimizer.minimize(function () {
       const predsYs = predict(tf.tensor1d(trainX));
